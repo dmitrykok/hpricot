@@ -57,36 +57,36 @@ SPEC =
     s.bindir = "bin"
   end
 # Dup the spec before any of its calculated ivars are set (e.g., #cache_file)
-Win32Spec = SPEC.dup
+# Win32Spec = SPEC.dup
 JRubySpec = SPEC.dup
 
 # FAT cross-compile
 # Pass RUBY_CC_VERSION=1.8.7:1.9.2 when packaging for 1.8+1.9 mswin32 binaries
-%w(hpricot_scan fast_xs).each do |target|
-  Rake::ExtensionTask.new(target, SPEC) do |ext|
-    ext.lib_dir = File.join('lib', target) if ENV['RUBY_CC_VERSION']
-    ext.cross_compile = true                # enable cross compilation (requires cross compile toolchain)
-    ext.cross_platform = 'i386-mswin32'     # forces the Windows platform instead of the default one
-  end
+# %w(hpricot_scan fast_xs).each do |target|
+#   Rake::ExtensionTask.new(target, SPEC) do |ext|
+#     ext.lib_dir = File.join('lib', target) if ENV['RUBY_CC_VERSION']
+#     ext.cross_compile = true                # enable cross compilation (requires cross compile toolchain)
+#     ext.cross_platform = 'i386-mswin32'     # forces the Windows platform instead of the default one
+#   end
 
-  # HACK around 1.9.2 cross .def file creation
-  def_file = "tmp/i386-mswin32/#{target}/1.9.2/#{target}-i386-mingw32.def"
-  directory File.dirname(def_file)
-  file def_file => File.dirname(def_file) do |t|
-    File.open(t.name, "w") do |f|
-      f << "EXPORTS\nInit_#{target}\n"
-    end
-  end
+#   # HACK around 1.9.2 cross .def file creation
+#   def_file = "tmp/i386-mswin32/#{target}/1.9.2/#{target}-i386-mingw32.def"
+#   directory File.dirname(def_file)
+#   file def_file => File.dirname(def_file) do |t|
+#     File.open(t.name, "w") do |f|
+#       f << "EXPORTS\nInit_#{target}\n"
+#     end
+#   end
 
-  task File.join(File.dirname(def_file), "Makefile") => def_file
-  # END HACK
-  file "lib/#{target}.rb" do |t|
-    File.open(t.name, "w") do |f|
-      f.puts %{require "#{target}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{target}"}
-    end
-  end
-end
-file 'ext/hpricot_scan/extconf.rb' => :ragel
+#   task File.join(File.dirname(def_file), "Makefile") => def_file
+#   # END HACK
+#   file "lib/#{target}.rb" do |t|
+#     File.open(t.name, "w") do |f|
+#       f.puts %{require "#{target}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{target}"}
+#     end
+#   end
+# end
+# file 'ext/hpricot_scan/extconf.rb' => :ragel
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
@@ -129,21 +129,21 @@ Gem::PackageTask.new(SPEC) do |p|
 end
 
 ### Win32 Packages ###
-Win32Spec.platform = 'i386-mswin32'
-Win32Spec.files = PKG_FILES + %w(hpricot_scan fast_xs).map do |t|
-  unless ENV['RUBY_CC_VERSION']
-    file "lib/#{t}/1.8/#{t}.so" do
-      abort "ERROR while packaging: re-run for fat win32 gems:\nrake #{ARGV.join(' ')} RUBY_CC_VERSION=1.8.7:1.9.2"
-    end
-  end
-  ["lib/#{t}.rb", "lib/#{t}/1.8/#{t}.so", "lib/#{t}/1.9/#{t}.so"]
-end.flatten
-Win32Spec.extensions = []
+# Win32Spec.platform = 'i386-mswin32'
+# Win32Spec.files = PKG_FILES + %w(hpricot_scan fast_xs).map do |t|
+#   unless ENV['RUBY_CC_VERSION']
+#     file "lib/#{t}/1.8/#{t}.so" do
+#       abort "ERROR while packaging: re-run for fat win32 gems:\nrake #{ARGV.join(' ')} RUBY_CC_VERSION=1.8.7:1.9.2"
+#     end
+#   end
+#   ["lib/#{t}.rb", "lib/#{t}/1.8/#{t}.so", "lib/#{t}/1.9/#{t}.so"]
+# end.flatten
+# Win32Spec.extensions = []
 
-Gem::PackageTask.new(Win32Spec) do |p|
-  p.need_tar = false
-  p.gem_spec = Win32Spec
-end
+# Gem::PackageTask.new(Win32Spec) do |p|
+#   p.need_tar = false
+#   p.gem_spec = Win32Spec
+# end
 
 JRubySpec.platform = 'java'
 JRubySpec.files = PKG_FILES + ["lib/hpricot_scan.jar", "lib/fast_xs.jar"]
@@ -234,4 +234,3 @@ end
   end
   task :compile_java => "lib/#{ext}.jar"
 end
-

@@ -1,17 +1,23 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    rake (0.9.2.2)
-    rake-compiler (0.7.9)
+    psych (5.1.2)
+      stringio
+    rake (13.2.1)
+    rake-compiler (1.2.7)
       rake
-    rdoc (3.9.1)
+    rdoc (6.7.0)
+      psych (>= 4.0.0)
+    stringio (3.1.0)
 
 PLATFORMS
-  java
   ruby
-  x86-mingw32
+  x86_64-linux
 
 DEPENDENCIES
   rake
   rake-compiler
   rdoc
+
+BUNDLED WITH
+   2.5.10
